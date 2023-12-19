@@ -101,6 +101,11 @@ impl TilePosition {
             center + Vec2::new(angle.cos(), angle.sin()) * Self::CIRCUMRADIUS
         })
     }
+
+    pub fn to_vec3_with_y(&self, y: f32) -> Vec3 {
+        let pos = Vec2::from(self);
+        Vec3::new(pos.x, y, -pos.y)
+    }
 }
 
 impl<'a> From<&'a TilePosition> for Vec2 {
@@ -118,8 +123,7 @@ impl From<TilePosition> for Vec2 {
 
 impl<'a> From<&'a TilePosition> for Vec3 {
     fn from(pos: &'a TilePosition) -> Vec3 {
-        let Vec2 { x, y } = Vec2::from(pos);
-        Vec3::new(x, 0., -y)
+        pos.to_vec3_with_y(0.)
     }
 }
 
@@ -159,8 +163,10 @@ impl From<Vec3> for TilePosition {
 /// Updates the position of any entity with a tile position and a transform
 /// component to the center of the tile position's world space equivalent. Only
 /// runs when the tile position changes.
-fn set_tile_position(mut query: Query<(&mut Transform, &TilePosition), Changed<TilePosition>>) {
+pub fn set_tile_position(mut query: Query<(&mut Transform, &TilePosition), Changed<TilePosition>>) {
     for (mut transform, tile_position) in query.iter_mut() {
-        transform.translation = Vec3::from(tile_position);
+        let Vec2 { x, y } = Vec2::from(tile_position);
+        transform.translation.x = x;
+        transform.translation.z = -y;
     }
 }

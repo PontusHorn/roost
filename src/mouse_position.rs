@@ -29,7 +29,7 @@ impl Default for MousePosition {
     }
 }
 
-fn update_mouse_position(
+pub fn update_mouse_position(
     camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     window_query: Query<&Window>,
     mut mouse_position: ResMut<MousePosition>,

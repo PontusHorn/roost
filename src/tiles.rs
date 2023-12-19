@@ -18,7 +18,7 @@ impl Plugin for TilesPlugin {
 }
 
 #[derive(Component)]
-struct Tile;
+pub struct Tile;
 
 #[derive(Resource)]
 struct TileMaterials(Option<TileMaterialHandles>);
@@ -61,10 +61,9 @@ fn spawn_tiles(
                 PbrBundle {
                     mesh: hexagon_mesh.clone(),
                     material: base_material.clone(),
-                    transform: Transform::from_translation(Vec2::from(&pos).extend(-1.))
-                        .with_rotation(
-                            Quat::from_rotation_x(PI / -2.) * Quat::from_rotation_z(PI / 2.),
-                        ),
+                    transform: Transform::from_translation((&pos).into()).with_rotation(
+                        Quat::from_rotation_x(PI / -2.) * Quat::from_rotation_z(PI / 2.),
+                    ),
                     ..default()
                 },
                 pos.clone(),
