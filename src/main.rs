@@ -4,8 +4,8 @@ mod game_state;
 mod lights;
 mod mouse_position;
 mod prelude;
-mod tile_gizmos;
 mod tile_position;
+mod tiles;
 
 use bevy::prelude::*;
 // use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -20,7 +20,7 @@ fn main() {
             game_state::GameStatePlugin,
             // WorldInspectorPlugin::new(),
             mouse_position::MousePositionPlugin,
-            tile_gizmos::TileGizmosPlugin,
+            tiles::TilesPlugin,
             tile_position::TilePositionPlugin,
         ))
         .run();

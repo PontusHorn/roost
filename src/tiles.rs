@@ -3,13 +3,13 @@ use std::f32::consts::PI;
 use crate::prelude::*;
 use bevy::prelude::*;
 
-pub struct TileGizmosPlugin;
+pub struct TilesPlugin;
 
-impl Plugin for TileGizmosPlugin {
+impl Plugin for TilesPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(TileMaterials(None))
-            .add_systems(OnExit(GameState::Loading), spawn_tile_gizmos)
-            .add_systems(OnExit(GameState::InGame), despawn_tile_gizmos)
+            .add_systems(OnExit(GameState::Loading), spawn_tiles)
+            .add_systems(OnExit(GameState::InGame), despawn_tiles)
             .add_systems(
                 Update,
                 highlight_hovered_tile.run_if(in_state(GameState::InGame)),
@@ -28,7 +28,7 @@ struct TileMaterialHandles {
     hovered: Handle<StandardMaterial>,
 }
 
-fn spawn_tile_gizmos(
+fn spawn_tiles(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -74,7 +74,7 @@ fn spawn_tile_gizmos(
     }
 }
 
-fn despawn_tile_gizmos(
+fn despawn_tiles(
     mut commands: Commands,
     query: Query<Entity, With<Tile>>,
     mut tile_materials: ResMut<TileMaterials>,
