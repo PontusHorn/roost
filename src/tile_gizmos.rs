@@ -1,12 +1,15 @@
+use std::f32::consts::PI;
+
 use crate::prelude::*;
 use bevy::prelude::*;
-use bevy_prototype_lyon::prelude::*;
 
 pub struct TileGizmosPlugin;
 
 impl Plugin for TileGizmosPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnExit(GameState::Loading), spawn_tile_gizmos)
+        app.insert_resource(TileMaterials(None))
+            .add_systems(OnExit(GameState::Loading), spawn_tile_gizmos)
+            .add_systems(OnExit(GameState::InGame), despawn_tile_gizmos)
             .add_systems(
                 Update,
                 highlight_hovered_tile.run_if(in_state(GameState::InGame)),
@@ -17,71 +20,89 @@ impl Plugin for TileGizmosPlugin {
 #[derive(Component)]
 struct Tile;
 
-pub const TRANSPARENT: Color = Color::rgba(0., 0., 0., 0.);
+#[derive(Resource)]
+struct TileMaterials(Option<TileMaterialHandles>);
 
-fn spawn_tile_gizmos(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let text_style = TextStyle {
-        color: Color::BLACK,
-        font: asset_server.load("fonts/itim.ttf"),
-        font_size: 20.0,
+struct TileMaterialHandles {
+    base: Handle<StandardMaterial>,
+    hovered: Handle<StandardMaterial>,
+}
+
+fn spawn_tile_gizmos(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut tile_materials: ResMut<TileMaterials>,
+) {
+    let hexagon = shape::RegularPolygon {
+        sides: 6,
+        radius: 0.49,
     };
+    let hexagon_mesh = meshes.add(hexagon.into());
+    let base_material = materials.add(StandardMaterial {
+        base_color: Color::CYAN,
+        ..default()
+    });
+    let hovered_material = materials.add(StandardMaterial {
+        base_color: Color::RED,
+        ..default()
+    });
+    tile_materials.0 = Some(TileMaterialHandles {
+        base: base_material.clone(),
+        hovered: hovered_material,
+    });
 
     let grid_size = 3;
     for q in -grid_size..=grid_size {
         for r in (-grid_size - q).max(-grid_size)..=(grid_size - q).min(grid_size) {
             let pos = TilePosition::new(q as f32, r as f32);
-            let shape = shapes::RegularPolygon {
-                sides: 6,
-                feature: shapes::RegularPolygonFeature::Radius(TilePosition::CIRCUMRADIUS - 2.),
-                ..default()
-            };
 
             commands.spawn((
-                ShapeBundle {
-                    path: GeometryBuilder::build_as(&shape),
-                    spatial: SpatialBundle {
-                        transform: Transform::from_translation(Vec2::from(&pos).extend(-1.)),
-                        ..default()
-                    },
+                PbrBundle {
+                    mesh: hexagon_mesh.clone(),
+                    material: base_material.clone(),
+                    transform: Transform::from_translation(Vec2::from(&pos).extend(-1.))
+                        .with_rotation(
+                            Quat::from_rotation_x(PI / -2.) * Quat::from_rotation_z(PI / 2.),
+                        ),
                     ..default()
-                },
-                Fill::color(Color::CYAN),
-                Stroke {
-                    color: TRANSPARENT,
-                    options: StrokeOptions::default()
-                        .with_line_width(6.)
-                        .with_line_join(LineJoin::Round)
-                        .with_miter_limit(1.),
                 },
                 pos.clone(),
                 Tile,
-            ));
-
-            let text = format!("{}, {}", pos.q, pos.r);
-            commands.spawn((
-                Text2dBundle {
-                    text: Text::from_section(text, text_style.clone()),
-                    transform: Transform::from_translation((&pos).into()),
-                    ..default()
-                },
-                pos,
             ));
         }
     }
 }
 
+fn despawn_tile_gizmos(
+    mut commands: Commands,
+    query: Query<Entity, With<Tile>>,
+    mut tile_materials: ResMut<TileMaterials>,
+) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+
+    tile_materials.0 = None;
+}
+
 fn highlight_hovered_tile(
-    mut strokes_query: Query<(&mut Stroke, &TilePosition), With<Tile>>,
+    mut material_query: Query<(&mut Handle<StandardMaterial>, &TilePosition), With<Tile>>,
+    tile_materials: Res<TileMaterials>,
     mouse_position: Res<MousePosition>,
 ) {
     let hovered_tile = mouse_position.tile.round();
+    let Some(tile_material_handles) = tile_materials.0.as_ref() else {
+        warn!("Missing tile material handles in resource");
+        return;
+    };
 
-    for (mut stroke, pos) in strokes_query.iter_mut() {
+    for (mut material_handle, pos) in material_query.iter_mut() {
         let is_hovered = *pos == hovered_tile;
-        stroke.color = if is_hovered {
-            Color::BLACK
+        *material_handle = if is_hovered {
+            tile_material_handles.hovered.clone()
         } else {
-            TRANSPARENT
+            tile_material_handles.base.clone()
         };
     }
 }

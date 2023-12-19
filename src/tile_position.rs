@@ -21,7 +21,7 @@ pub struct TilePosition {
 const SQRT_3: f32 = 1.7320508;
 
 impl TilePosition {
-    pub const CIRCUMRADIUS: f32 = 48.0;
+    pub const CIRCUMRADIUS: f32 = 0.5;
     pub const INRADIUS: f32 = SQRT_3 * Self::CIRCUMRADIUS / 2.0;
 
     /// A zero tile vector.
@@ -118,7 +118,8 @@ impl From<TilePosition> for Vec2 {
 
 impl<'a> From<&'a TilePosition> for Vec3 {
     fn from(pos: &'a TilePosition) -> Vec3 {
-        Vec2::from(pos).extend(0.)
+        let Vec2 { x, y } = Vec2::from(pos);
+        Vec3::new(x, 0., -y)
     }
 }
 
@@ -144,14 +145,14 @@ impl From<Vec2> for TilePosition {
 }
 
 impl<'a> From<&'a Vec3> for TilePosition {
-    fn from(Vec3 { x, y, .. }: &'a Vec3) -> Self {
-        Vec2::new(*x, *y).into()
+    fn from(Vec3 { x, z, .. }: &'a Vec3) -> Self {
+        Vec2::new(*x, -*z).into()
     }
 }
 
 impl From<Vec3> for TilePosition {
-    fn from(Vec3 { x, y, .. }: Vec3) -> Self {
-        Vec2::new(x, y).into()
+    fn from(Vec3 { x, z, .. }: Vec3) -> Self {
+        Vec2::new(x, -z).into()
     }
 }
 
@@ -160,6 +161,6 @@ impl From<Vec3> for TilePosition {
 /// runs when the tile position changes.
 fn set_tile_position(mut query: Query<(&mut Transform, &TilePosition), Changed<TilePosition>>) {
     for (mut transform, tile_position) in query.iter_mut() {
-        (transform.translation.x, transform.translation.y) = Vec2::from(tile_position).into();
+        transform.translation = Vec3::from(tile_position);
     }
 }
