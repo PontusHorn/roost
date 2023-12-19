@@ -1,6 +1,7 @@
 mod camera;
 mod defaults;
 mod game_state;
+mod ground;
 mod house;
 mod lights;
 mod mouse_position;
@@ -21,6 +22,7 @@ fn main() {
             game_state::GameStatePlugin,
             // WorldInspectorPlugin::new(),
             mouse_position::MousePositionPlugin,
+            ground::GroundPlugin,
             tiles::TilesPlugin,
             house::HousePlugin,
             tile_position::TilePositionPlugin,
