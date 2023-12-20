@@ -6,6 +6,7 @@ mod house;
 mod lights;
 mod mouse_position;
 mod prelude;
+mod spring;
 mod tile_position;
 mod tiles;
 
@@ -20,6 +21,7 @@ fn main() {
             lights::LightsPlugin,
             defaults::DefaultsPlugin,
             game_state::GameStatePlugin,
+            spring::SpringPlugin,
             // WorldInspectorPlugin::new(),
             mouse_position::MousePositionPlugin,
             ground::GroundPlugin,

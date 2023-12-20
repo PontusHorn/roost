@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{prelude::*, spring::TranslationSpring};
 use bevy::prelude::*;
 
 pub struct TilePositionPlugin;
@@ -163,10 +163,26 @@ impl From<Vec3> for TilePosition {
 /// Updates the position of any entity with a tile position and a transform
 /// component to the center of the tile position's world space equivalent. Only
 /// runs when the tile position changes.
-pub fn set_tile_position(mut query: Query<(&mut Transform, &TilePosition), Changed<TilePosition>>) {
-    for (mut transform, tile_position) in query.iter_mut() {
+pub fn set_tile_position(
+    mut query: Query<
+        (
+            &mut Transform,
+            &TilePosition,
+            Option<&mut TranslationSpring>,
+        ),
+        Changed<TilePosition>,
+    >,
+) {
+    for (mut transform, tile_position, translation_spring) in query.iter_mut() {
         let Vec2 { x, y } = Vec2::from(tile_position);
-        transform.translation.x = x;
-        transform.translation.z = -y;
+        match translation_spring {
+            None => {
+                transform.translation.x = x;
+                transform.translation.z = -y;
+            }
+            Some(mut translation_spring) => {
+                translation_spring.target = Vec3::new(x, transform.translation.y, -y);
+            }
+        }
     }
 }
