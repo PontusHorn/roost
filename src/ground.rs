@@ -28,7 +28,7 @@ fn spawn_ground(
         PbrBundle {
             mesh: plane_mesh.clone(),
             material: material.clone(),
-            transform: Transform::from_translation(Vec3::new(0., -0.01, 0.)),
+            transform: Transform::from_translation(Vec3::new(0., -0.001, 0.)),
             ..default()
         },
         Ground,

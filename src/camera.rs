@@ -19,13 +19,13 @@ fn setup(mut commands: Commands) {
                 ..default()
             },
             projection: OrthographicProjection {
-                far: 1000.,
-                near: -1000.,
+                far: 100.,
+                near: -100.,
                 scale: 0.01,
                 ..default()
             }
             .into(),
-            transform: Transform::from_xyz(0., 12., 12.).looking_at(Vec3::new(0., 0., 0.), Vec3::Y),
+            transform: Transform::from_xyz(0., 2., 2.).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         },
         MainCamera,
