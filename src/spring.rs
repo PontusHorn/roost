@@ -7,7 +7,7 @@ impl Plugin for SpringPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (apply_translation_springs, apply_scale_springs).run_if(in_state(GameState::InGame)),
+            (apply_translation_springs, apply_scale_springs).run_if(in_state(AppState::InGame)),
         );
     }
 }
@@ -37,13 +37,17 @@ impl Default for TranslationSpring {
     }
 }
 
-pub fn apply_translation_springs(mut query: Query<(&mut Transform, &mut TranslationSpring)>) {
+pub fn apply_translation_springs(
+    mut query: Query<(&mut Transform, &mut TranslationSpring)>,
+    time: Res<Time>,
+) {
+    let time_factor = time.delta_seconds() * 60.0;
     for (mut transform, mut spring) in query.iter_mut() {
         let force = (spring.target - transform.translation) * spring.stiffness;
         let damping = spring.velocity * spring.damping;
         let acceleration = (force - damping) / 1.0;
-        spring.velocity += acceleration;
-        transform.translation += spring.velocity;
+        spring.velocity += acceleration * time_factor;
+        transform.translation += spring.velocity * time_factor;
         if (spring.target - transform.translation).length() < 0.001
             && spring.velocity.length() < 0.001
         {

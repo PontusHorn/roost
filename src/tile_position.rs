@@ -5,10 +5,7 @@ pub struct TilePositionPlugin;
 
 impl Plugin for TilePositionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            set_tile_position.run_if(in_state(GameState::InGame)),
-        );
+        app.add_systems(Update, set_tile_position.run_if(in_state(AppState::InGame)));
     }
 }
 
@@ -181,7 +178,8 @@ pub fn set_tile_position(
                 transform.translation.z = -y;
             }
             Some(mut translation_spring) => {
-                translation_spring.target = Vec3::new(x, transform.translation.y, -y);
+                translation_spring.target.x = x;
+                translation_spring.target.z = -y;
             }
         }
     }

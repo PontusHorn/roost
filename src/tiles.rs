@@ -8,11 +8,11 @@ pub struct TilesPlugin;
 impl Plugin for TilesPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(TileMaterials(None))
-            .add_systems(OnExit(GameState::Loading), spawn_tiles)
-            .add_systems(OnExit(GameState::InGame), despawn_tiles)
+            .add_systems(OnExit(AppState::Loading), spawn_tiles)
+            .add_systems(OnExit(AppState::InGame), despawn_tiles)
             .add_systems(
                 Update,
-                highlight_hovered_tile.run_if(in_state(GameState::InGame)),
+                highlight_hovered_tile.run_if(in_state(AppState::InGame)),
             );
     }
 }

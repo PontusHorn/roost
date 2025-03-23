@@ -7,7 +7,7 @@ impl Plugin for MousePositionPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<MousePosition>().add_systems(
             Update,
-            update_mouse_position.run_if(in_state(GameState::InGame)),
+            update_mouse_position.run_if(in_state(AppState::InGame)),
         );
     }
 }

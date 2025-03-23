@@ -5,8 +5,8 @@ pub struct GroundPlugin;
 
 impl Plugin for GroundPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnExit(GameState::Loading), spawn_ground)
-            .add_systems(OnExit(GameState::InGame), despawn_ground);
+        app.add_systems(OnExit(AppState::Loading), spawn_ground)
+            .add_systems(OnExit(AppState::InGame), despawn_ground);
     }
 }
 

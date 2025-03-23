@@ -1,16 +1,18 @@
 mod camera;
 mod defaults;
-mod game_state;
 mod ground;
-mod house;
 mod lights;
 mod mouse_position;
 mod prelude;
 mod spring;
+mod state;
+mod structure;
 mod tile_position;
 mod tiles;
+mod ui;
 
 use bevy::prelude::*;
+use ui::*;
 // use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 fn main() {
@@ -20,13 +22,14 @@ fn main() {
             camera::CameraPlugin,
             lights::LightsPlugin,
             defaults::DefaultsPlugin,
-            game_state::GameStatePlugin,
+            UiPlugin,
+            state::StatePlugin,
             spring::SpringPlugin,
             // WorldInspectorPlugin::new(),
             mouse_position::MousePositionPlugin,
             ground::GroundPlugin,
+            structure::StructurePlugin,
             tiles::TilesPlugin,
-            house::HousePlugin,
             tile_position::TilePositionPlugin,
         ))
         .run();
